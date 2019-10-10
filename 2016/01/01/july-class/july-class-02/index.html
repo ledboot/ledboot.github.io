@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: true,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="数组的地址和数组本身相等 字符串循环左移 1234567891011121314151617181920212223242526272829#include &amp;lt;iostream&amp;gt;#include &amp;lt;stdio.h&amp;gt;using namespace std;void ReverString(char *s,int from,int to)&amp;#123;    while(from">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="july-class-02（数组和指针）">
+<meta property="og:url" content="http://ledboot.com/2016/01/01/july-class/july-class-02/index.html">
+<meta property="og:site_name" content="Deep Breath">
+<meta property="og:description" content="数组的地址和数组本身相等 字符串循环左移 1234567891011121314151617181920212223242526272829#include &amp;lt;iostream&amp;gt;#include &amp;lt;stdio.h&amp;gt;using namespace std;void ReverString(char *s,int from,int to)&amp;#123;    while(from">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-10T09:35:40.221Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="july-class-02（数组和指针）">
+<meta name="twitter:description" content="数组的地址和数组本身相等 字符串循环左移 1234567891011121314151617181920212223242526272829#include &amp;lt;iostream&amp;gt;#include &amp;lt;stdio.h&amp;gt;using namespace std;void ReverString(char *s,int from,int to)&amp;#123;    while(from">
+  <link rel="canonical" href="http://ledboot.com/2016/01/01/july-class/july-class-02/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>july-class-02（数组和指针） | Deep Breath</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Deep Breath</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">思绪来得快去得也快，偶尔会在这里停留</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://ledboot.com/2016/01/01/july-class/july-class-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gwynn Wen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Deep Breath">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">july-class-02（数组和指针）
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2016-01-01 22:30:57" itemprop="dateCreated datePublished" datetime="2016-01-01T22:30:57+08:00">2016-01-01</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-10 17:35:40" itemprop="dateModified" datetime="2019-10-10T17:35:40+08:00">2019-10-10</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>数组的地址和数组本身相等</p>
+<p>字符串循环左移</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ReverString</span><span class="params">(<span class="keyword">char</span> *s,<span class="keyword">int</span> from,<span class="keyword">int</span> to)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(from&lt;to)&#123;</span><br><span class="line">        <span class="keyword">char</span> temp = s[from];</span><br><span class="line">        s[from++]= s[to];</span><br><span class="line">        s[to--]=temp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LeftRotate</span><span class="params">(<span class="keyword">char</span>* s,<span class="keyword">int</span> n,<span class="keyword">int</span> m)</span></span>&#123;</span><br><span class="line">    m%=n;</span><br><span class="line">    ReverString(s, <span class="number">0</span>, m-<span class="number">1</span>);</span><br><span class="line">    ReverString(s, m,n-<span class="number">1</span>);</span><br><span class="line">    ReverString(s, <span class="number">0</span>, n-<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> s[] = <span class="string">"abcdef"</span>;</span><br><span class="line">    cout&lt;&lt;<span class="string">"s="</span>&lt;&lt;s&lt;&lt;endl;</span><br><span class="line">    <span class="keyword">int</span> len = sizeof(s);</span><br><span class="line">    cout&lt;&lt;<span class="string">"len="</span>&lt;&lt;len&lt;&lt;endl;</span><br><span class="line">    LeftRotate(s, len-<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">    cout&lt;&lt;<span class="string">"s="</span>&lt;&lt;s&lt;&lt;endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>字符串循环左移，时间复杂度为O(n)，空间复杂度为O(1)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">void ReverString(char* s,int from ,int to)&#123;</span><br><span class="line">    while(from&lt;to)&#123;</span><br><span class="line">        char r = s[from];</span><br><span class="line">        s[from++] = s[to];</span><br><span class="line">        s[to--] = r;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void LeftRotate(char* s, int n,int m)&#123;</span><br><span class="line">    m%=n;</span><br><span class="line">    ReverString(s,0,m-1);</span><br><span class="line">    ReverString(s,m,n-1);</span><br><span class="line">    ReverString(s,0,n-1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line">    char s[] = &quot;abcdef&quot;;</span><br><span class="line">    int len = sizeof(s)-1;</span><br><span class="line">    cout&lt;&lt;&quot;s=&quot;&lt;&lt;s&lt;&lt;endl;</span><br><span class="line">    //cout&lt;&lt;&quot;len=&quot;&lt;&lt;len&lt;&lt;endl;</span><br><span class="line">    LeftRotate(s,len,3);</span><br><span class="line">    cout&lt;&lt;&quot;s=&quot;&lt;&lt;s&lt;&lt;endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>荷兰国旗问题<br>问题转化为：给定数组A[0…N-1]，元素只能取0、1、2三个值，设计算法，使得数组排列成”00…0011…1122…22“的形式。</p>
+<p>定义三个指针：begin=0、current=0、end = N-1，</p>
+<ul>
+<li>A[cur]==2，则A[cur]与A[end]交换，end–,cur不变</li>
+<li>A[cur]==1，则cur++，begin不变，end不变</li>
+<li>A[cur]==0，则：<ul>
+<li>若begin==cur，则begin++，cur++</li>
+<li>若begin != cur，则A[cur]与A[begin]交换，begin++，cur不变</li>
+</ul>
+</li>
+</ul>
+<p><strong>Code1：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">void holland1(int *a,int length)&#123;</span><br><span class="line">    int begin=0;</span><br><span class="line">    int end = length -1;</span><br><span class="line">    int curr = 0;</span><br><span class="line">    while(curr&lt;=end)&#123;</span><br><span class="line">        if(a[curr] == 2)&#123;</span><br><span class="line">            swap(a[curr],a[end]);</span><br><span class="line">            end--;</span><br><span class="line">        &#125;else if(a[curr] == 1)&#123;</span><br><span class="line">            curr++;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            if(curr == begin)&#123;</span><br><span class="line">                curr++;</span><br><span class="line">                begin++;</span><br><span class="line">            &#125;else&#123;</span><br><span class="line">                swap(a[curr],a[begin]);</span><br><span class="line">                begin++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>进一步优化</p>
+<ul>
+<li>cur扫过的位置，即：[begin,cur)区间内，一定没有2，前面的A[cur]=2，已经被替换到数组后面了</li>
+<li>因此：A[begin]要么是0，要么是1，不可能是2</li>
+<li>若begin != cur，则必有<strong><em>A[begin]=1</em></strong></li>
+<li>因此，当A[cur]==0时，若begin != cur，  因为<strong><em>A[begin]=1</em></strong>，则交换后，A[cur]==1，此时，也可以将<strong><em>cur++</em></strong></li>
+</ul>
+<p><img alt="图片" data-src="/assets/images/2016-01-03_170334.png"></p>
+<p><strong>Code2：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">void holland2(int *a,int length)&#123;</span><br><span class="line">    int begin=0;</span><br><span class="line">    int end = length -1;</span><br><span class="line">    int curr = 0;</span><br><span class="line">    while(curr&lt;=end)&#123;</span><br><span class="line">        if(a[curr] == 2)&#123;</span><br><span class="line">            swap(a[curr],a[end]);</span><br><span class="line">            end--;</span><br><span class="line">        &#125;else if(a[curr] == 1)&#123;</span><br><span class="line">            curr++;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">	        if(curr != begin)</span><br><span class="line">		        swap(a[curr],a[begin]);</span><br><span class="line">		    curr++;</span><br><span class="line">            begin++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若初始值给定如下：<br>begin=0、cur = N-1、end=N-1</p>
+<p><strong>Code4：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">void holland4(int *a ,int length)&#123;</span><br><span class="line">    int begin = 0;</span><br><span class="line">    int end = length-1;</span><br><span class="line">    int curr = end;</span><br><span class="line">    while(curr&gt;=begin)&#123;</span><br><span class="line">        if(a[curr] == 2)&#123;</span><br><span class="line">            swap(a[curr],a[end]);</span><br><span class="line">            end--;</span><br><span class="line">        &#125;else if(a[curr] ==1)&#123;</span><br><span class="line">            curr--;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            swap(a[curr],a[begin]);</span><br><span class="line">            begin++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>提出一个概念：<br>循环不变式：如果某个命题初始为真，且每次更改后仍然保持该命题为真，则若干次更改后该命题仍然为真。</p>
+<p>循环不变式的应用</p>
+<p>三个变量begin、cur、end，将数组分成4个区域：</p>
+<ul>
+<li>[0,begin)：所有数据都是0</li>
+<li>[begin,cur)：所有数据都是1</li>
+<li>(end,size-1)：所有数据都是2</li>
+<li>[cur,end]：未知</li>
+</ul>
+<p>循环不变式：</p>
+<ul>
+<li>初值begin=cur=0，end=size-1，前三个区间都为空集，满足以上4个条件。</li>
+<li>遍历cur，根据A[cur]的值做相应处理，知道区间[cur,end]为空，即cur==end时退出。</li>
+<li>根据以上思路，其实可以得出Code2代码。</li>
+</ul>
+<p><strong>ps:空集上的任何结论都是对的。</strong></p>
+<blockquote>
+<p>欢迎关注我的个人订阅号</p>
+</blockquote>
+<p><img alt="个人订阅号" data-src="/assets/images/qrcode.jpg"></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Gwynn Wen</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://ledboot.com/2016/01/01/july-class/july-class-02/" title="july-class-02（数组和指针）">http://ledboot.com/2016/01/01/july-class/july-class-02/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1DTg=="><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！</li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/算法/" rel="tag"># 算法</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2015/12/16/network-base/" rel="next" title="网络基础">
+                  <i class="fa fa-chevron-left"></i> 网络基础
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2016/01/04/joting/RecyclerViewintScrollView/" rel="prev" title="RecyclerViewintScrollView">
+                  RecyclerViewintScrollView <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Gwynn Wen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2xlZGJvb3Q=" title="GitHub &rarr; https://github.com/ledboot"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <span class="exturl" data-url="bWFpbHRvOnBvcG11c2ljYmJxQGdtYWlsLmNvbQ==" title="E-Mail &rarr; mailto:popmusicbbq@gmail.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <span class="exturl cc-opacity" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1DTg=="><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gwynn Wen</span>
+</div>
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <span class="exturl theme-link" data-url="aHR0cHM6Ly90aGVtZS1uZXh0Lm9yZw==">NexT.Gemini</span> v7.4.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+    
+  
+  <script color='225,50,126' opacity='0.5' zIndex='-1' count='99' src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-nest@latest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: '4c5a4c3edf8235abd432',
+      clientSecret: 'a97b932778d88cf6fa4929df859a2f18056b7508',
+      repo: 'BlogComments',
+      owner: 'ledboot',
+      admin: ['ledboot'],
+      id: 'f0236b8da49ecec90ce7e3969326fd9b',
+        language: 'zh-CN',
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>

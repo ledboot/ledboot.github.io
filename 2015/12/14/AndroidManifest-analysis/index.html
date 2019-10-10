@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: true,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: true,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="关于AndroidManifest.xmlAndroidManifest.xml 是每个android程序中必须的文件。它位于整个项目的根目录，描述了package中暴露的组件（activities, services, 等等），他们各自的实现类，各种能被处理的数据和启动位置。 除了能声明程序中的Activities, ContentProviders, Services, 和Intent Rec">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AndroidManifest解析">
+<meta property="og:url" content="http://ledboot.com/2015/12/14/AndroidManifest-analysis/index.html">
+<meta property="og:site_name" content="Deep Breath">
+<meta property="og:description" content="关于AndroidManifest.xmlAndroidManifest.xml 是每个android程序中必须的文件。它位于整个项目的根目录，描述了package中暴露的组件（activities, services, 等等），他们各自的实现类，各种能被处理的数据和启动位置。 除了能声明程序中的Activities, ContentProviders, Services, 和Intent Rec">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-10T09:35:40.221Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AndroidManifest解析">
+<meta name="twitter:description" content="关于AndroidManifest.xmlAndroidManifest.xml 是每个android程序中必须的文件。它位于整个项目的根目录，描述了package中暴露的组件（activities, services, 等等），他们各自的实现类，各种能被处理的数据和启动位置。 除了能声明程序中的Activities, ContentProviders, Services, 和Intent Rec">
+  <link rel="canonical" href="http://ledboot.com/2015/12/14/AndroidManifest-analysis/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>AndroidManifest解析 | Deep Breath</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Deep Breath</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">思绪来得快去得也快，偶尔会在这里停留</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://ledboot.com/2015/12/14/AndroidManifest-analysis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gwynn Wen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Deep Breath">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">AndroidManifest解析
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2015-12-14 22:43:11" itemprop="dateCreated datePublished" datetime="2015-12-14T22:43:11+08:00">2015-12-14</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-10 17:35:40" itemprop="dateModified" datetime="2019-10-10T17:35:40+08:00">2019-10-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="关于AndroidManifest-xml"><a href="#关于AndroidManifest-xml" class="headerlink" title="关于AndroidManifest.xml"></a>关于AndroidManifest.xml</h4><p>AndroidManifest.xml 是每个android程序中必须的文件。它位于整个项目的根目录，描述了package中暴露的组件（activities, services, 等等），他们各自的实现类，各种能被处理的数据和启动位置。 除了能声明程序中的Activities, ContentProviders, Services, 和Intent Receivers,还能指定permissions和instrumentation。</p>
+<h4 id="各个节点的详细介绍"><a href="#各个节点的详细介绍" class="headerlink" title="各个节点的详细介绍"></a>各个节点的详细介绍</h4><h5 id="lt-Manifest-gt-属性"><a href="#lt-Manifest-gt-属性" class="headerlink" title="(&lt; Manifest &gt;)属性"></a>(&lt; Manifest &gt;)属性</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;manifest  xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">          package=&quot;com.woody.test&quot;</span><br><span class="line">          android:sharedUserId=&quot;string&quot;</span><br><span class="line">          android:sharedUserLabel=&quot;string resource&quot;</span><br><span class="line">          android:versionCode=&quot;integer&quot;</span><br><span class="line">          android:versionName=&quot;string&quot;</span><br><span class="line">          android:installLocation=[&quot;auto&quot; | &quot;internalOnly&quot; | &quot;preferExternal&quot;] &gt;</span><br><span class="line">&lt;/manifest&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>sharedUserId，表明数据权限，因为默认情况下，Android给每个APK分配一个唯一的UserID，所以是默认禁止不同APK访问共享数据的。若要共享数据，第一可以采用Share Preference方法，第二种就可以采用sharedUserId了，将不同APK的sharedUserId都设为一样，则这些APK之间就可以互相共享数据了</li>
+<li>sharedUserLabel，一个共享的用户名，它只有在设置了sharedUserId属性的前提下才会有意义</li>
+<li>versionCode，给设备程序识别版本(升级)用的必须是一个interger值代表app更新过多少次</li>
+<li>versionName，这个名称是给用户看的，你可以将你的APP版本号设置为1.1版</li>
+<li>installLocation，安装参数，是Android2.2中的一个新特性，installLocation有三个值可以选择：internalOnly、auto、preferExternal。<ul>
+<li>preferExternal，系统会优先考虑将APK安装到SD卡上(当然最终用户可以选择为内部ROM存储上，如果SD存储已满，也会安装到内部存储上）</li>
+<li>auto，系统将会根据存储空间自己去适应</li>
+<li>internalOnly，是指必须安装到内部才能运行</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<h5 id="lt-Application-gt-属性"><a href="#lt-Application-gt-属性" class="headerlink" title="(&lt; Application &gt;)属性"></a>(&lt; Application &gt;)属性</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;application  android:allowClearUserData=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:allowTaskReparenting=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:backupAgent=&quot;string&quot;</span><br><span class="line">             android:debuggable=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:description=&quot;string resource&quot;</span><br><span class="line">             android:enabled=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:hasCode=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:icon=&quot;drawable resource&quot;</span><br><span class="line">             android:killAfterRestore=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:label=&quot;string resource&quot;</span><br><span class="line">             android:manageSpaceActivity=&quot;string&quot;</span><br><span class="line">             android:name=&quot;string&quot;</span><br><span class="line">             android:permission=&quot;string&quot;</span><br><span class="line">             android:persistent=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:process=&quot;string&quot;</span><br><span class="line">             android:restoreAnyVersion=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">             android:taskAffinity=&quot;string&quot;</span><br><span class="line">             android:theme=&quot;resource or theme&quot; &gt;</span><br><span class="line">&lt;/application&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>android:allowClearUserData，用户是否能选择自行清除数据，默认为true，程序管理器包含一个选择允许用户清除数据。当为true时，用户可自己清理用户数据，反之亦然</li>
+<li>android:allowTaskReparentin，是否允许activity更换从属的任务，比如从短信息任务切换到浏览器任务</li>
+<li>android:debuggable，当设置为true时，表明该APP在手机上可以被调试。默认为false,在false的情况下调试该APP</li>
+<li>android:description，可以用于具体描述获取该许可的程序可以做哪些事情</li>
+<li>android:label，应用名称</li>
+<li>android:enabled，Android系统是否能够实例化该应用程序的组件</li>
+<li>android:icon，APP的图标</li>
+<li>android:name，为应用程序所实现的Application子类的全名。当应用程序进程开始时，该类在所有应用程序组件之前被实例化</li>
+<li>android:permission，这个属性若在<application>上定义的话，是一个给应用程序的所有组件设置许可的便捷方式</application></li>
+<li>android:presistent，该应用程序是否应该在任何时候都保持运行状态,默认为false</li>
+<li>android:process，应用程序运行的进程名，它的默认值为<manifest>元素里设置的包名，当然每个组件都可以通过设置该属性来覆盖默认值。如果你想两个应用程序共用一个进程的话，你可以设置他们的android:process相同，但前提条件是他们共享一个用户ID及被赋予了相同证书的时候</manifest></li>
+<li>android:taskAffinity，拥有相同的affinity的Activity理论上属于相同的Task，应用程序默认的affinity的名字是<manifest>元素中设定的package名</manifest></li>
+<li>android:theme，资源的风格</li>
+</ul>
+<h5 id="lt-Activity-gt-属性"><a href="#lt-Activity-gt-属性" class="headerlink" title="(&lt; Activity &gt;)属性"></a>(&lt; Activity &gt;)属性</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&lt;activity android:allowTaskReparenting=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:alwaysRetainTaskState=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:clearTaskOnLaunch=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:configChanges=[&quot;mcc&quot;, &quot;mnc&quot;, &quot;locale&quot;,</span><br><span class="line">                                 &quot;touchscreen&quot;, &quot;keyboard&quot;, &quot;keyboardHidden&quot;,</span><br><span class="line">                                 &quot;navigation&quot;, &quot;orientation&quot;, &quot;screenLayout&quot;,</span><br><span class="line">                                 &quot;fontScale&quot;, &quot;uiMode&quot;]</span><br><span class="line">          android:enabled=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:excludeFromRecents=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:exported=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:finishOnTaskLaunch=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:icon=&quot;drawable resource&quot;</span><br><span class="line">          android:label=&quot;string resource&quot;</span><br><span class="line">          android:launchMode=[&quot;multiple&quot; | &quot;singleTop&quot; |</span><br><span class="line">                              &quot;singleTask&quot; | &quot;singleInstance&quot;]</span><br><span class="line">          android:multiprocess=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:name=&quot;string&quot;</span><br><span class="line">          android:noHistory=[&quot;true&quot; | &quot;false&quot;]  </span><br><span class="line">          android:permission=&quot;string&quot;</span><br><span class="line">          android:process=&quot;string&quot;</span><br><span class="line">          android:screenOrientation=[&quot;unspecified&quot; | &quot;user&quot; | &quot;behind&quot; |</span><br><span class="line">                                     &quot;landscape&quot; | &quot;portrait&quot; |</span><br><span class="line">                                     &quot;sensor&quot; | &quot;nosensor&quot;]</span><br><span class="line">          android:stateNotNeeded=[&quot;true&quot; | &quot;false&quot;]</span><br><span class="line">          android:taskAffinity=&quot;string&quot;</span><br><span class="line">          android:theme=&quot;resource or theme&quot;</span><br><span class="line">          android:windowSoftInputMode=[&quot;stateUnspecified&quot;,</span><br><span class="line">                                       &quot;stateUnchanged&quot;, &quot;stateHidden&quot;,</span><br><span class="line">                                       &quot;stateAlwaysHidden&quot;, &quot;stateVisible&quot;,</span><br><span class="line">                                       &quot;stateAlwaysVisible&quot;, &quot;adjustUnspecified&quot;,</span><br><span class="line">                                       &quot;adjustResize&quot;, &quot;adjustPan&quot;] &gt;   </span><br><span class="line">&lt;/activity&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>android:alwaysRetainTaskState，是否保留状态不变， 比如切换回home, 再从新打开，activity处于最后的状态。比如一个浏览器拥有很多状态(当打开了多个TAB的时候)，用户并不希望丢失这些状态时，此时可将此属性设置为true</li>
+<li>android:clearTaskOnLaunch，比如 P 是 activity, Q 是被P 触发的 activity, 然后返回Home, 重新启动 P，是否显示 Q</li>
+<li>android:configChanges，正常情况下. 如果手机旋转了.当前Activity后杀掉,然后根据方向重新加载这个Activity. 就会从onCreate开始重新加载.<br>如果你设置了 这个选项, 当手机旋转后,当前Activity之后调用onConfigurationChanged() 方法. 而不跑onCreate方法等</li>
+<li>android:excludeFromRecents，是否可被显示在最近打开的activity列表里，默认是false</li>
+<li>android:finishOnTaskLaunch，当用户重新启动这个任务的时候，是否关闭已打开的activity，默认是false，如果这个属性和allowTaskReparenting都是true,这个属性就是王牌。Activity的亲和力将被忽略。该Activity已经被摧毁并非re-parented</li>
+<li>android:launchMode，在多Activity开发中，有可能是自己应用之间的Activity跳转，或者夹带其他应用的可复用Activity。可能会希望跳转到原来某个Activity实例，而不是产生大量重复的Activity，默认为standard<ul>
+<li>standard：就是intent将发送给新的实例，所以每次跳转都会生成新的activity</li>
+<li>singleTop：也是发送新的实例，但不同standard的一点是，在请求的Activity正好位于栈顶时(配置成singleTop的Activity)，不会构造新的实例</li>
+<li>singleTask：和后面的singleInstance都只创建一个实例，当intent到来，需要创建设置为singleTask的Activity的时候，系统会检查栈里面是否已经有该Activity的实例。如果有直接将intent发送给它</li>
+<li>首先说明一下task这个概念，Task可以认为是一个栈，可放入多个Activity，比如启动一个应用，那么Android就创建了一个Task，然后启动这个应用的入口Activity，那在它的界面上调用其他的Activity也只是在这个task里面。singleInstance模式就是将该Activity单独放入一个栈中，这样这个栈中只有这一个Activity，不同应用的intent都由这个Activity接收和展示，这样就做到了共享。当然前提是这些应用都没有被销毁，所以刚才是按下的HOME键，如果按下了返回键，则无效</li>
+</ul>
+</li>
+<li>android:multiprocess，是否允许多进程，默认是false</li>
+</ul>
+<blockquote>
+<p>欢迎关注我的个人订阅号</p>
+</blockquote>
+<p><img alt="个人订阅号" data-src="/assets/images/qrcode.jpg"></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Gwynn Wen</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://ledboot.com/2015/12/14/AndroidManifest-analysis/" title="AndroidManifest解析">http://ledboot.com/2015/12/14/AndroidManifest-analysis/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <span class="exturl" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1DTg=="><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</span> 许可协议。转载请注明出处！</li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Android/" rel="tag"># Android</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2015/12/12/july-class/july-class-01/" rel="next" title="july-class-01（字符和字符串）">
+                  <i class="fa fa-chevron-left"></i> july-class-01（字符和字符串）
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2015/12/16/android-base/" rel="prev" title="Android基础">
+                  Android基础 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#关于AndroidManifest-xml"><span class="nav-number">1.</span> <span class="nav-text">关于AndroidManifest.xml</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#各个节点的详细介绍"><span class="nav-number">2.</span> <span class="nav-text">各个节点的详细介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#lt-Manifest-gt-属性"><span class="nav-number">2.1.</span> <span class="nav-text">(&lt; Manifest &gt;)属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#lt-Application-gt-属性"><span class="nav-number">2.2.</span> <span class="nav-text">(&lt; Application &gt;)属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#lt-Activity-gt-属性"><span class="nav-number">2.3.</span> <span class="nav-text">(&lt; Activity &gt;)属性</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Gwynn Wen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2xlZGJvb3Q=" title="GitHub &rarr; https://github.com/ledboot"><i class="fa fa-fw fa-github"></i>GitHub</span>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <span class="exturl" data-url="bWFpbHRvOnBvcG11c2ljYmJxQGdtYWlsLmNvbQ==" title="E-Mail &rarr; mailto:popmusicbbq@gmail.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</span>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <span class="exturl cc-opacity" data-url="aHR0cHM6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LW5jLXNhLzQuMC96aC1DTg=="><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gwynn Wen</span>
+</div>
+  <div class="powered-by">由 <span class="exturl theme-link" data-url="aHR0cHM6Ly9oZXhvLmlv">Hexo</span> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <span class="exturl theme-link" data-url="aHR0cHM6Ly90aGVtZS1uZXh0Lm9yZw==">NexT.Gemini</span> v7.4.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+    
+  
+  <script color='225,50,126' opacity='0.5' zIndex='-1' count='99' src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-nest@latest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: '4c5a4c3edf8235abd432',
+      clientSecret: 'a97b932778d88cf6fa4929df859a2f18056b7508',
+      repo: 'BlogComments',
+      owner: 'ledboot',
+      admin: ['ledboot'],
+      id: '7a0853881ca6f66e1dcefa3fc3d1f3c0',
+        language: 'zh-CN',
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>
